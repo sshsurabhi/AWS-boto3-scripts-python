@@ -44,3 +44,33 @@ response = s3.list_objects(Bucket='gid-staging')
 
 for obj in response['Contents']:
     print(obj['Key'])
+
+
+################################################# Upload the final_report.csv to gid-staging bucket
+s3.upload_file(
+    # Complete the filename
+    Filename='./final_report.csv', 
+    # Set the key and bucket
+    Key='2019/final_report_2019_02_20.csv', 
+    Bucket='gid-staging',
+    # During upload, set ACL to public-read
+    ExtraArgs={'ACL': 'public-read'}
+)
+
+
+# -------------------------------------
+# List only objects that start with '2019/final_'
+response = s3.list_objects(
+    Bucket='gid-staging', Prefix='2019/final_')
+
+# Iterate over the objects
+for obj in response['Contents']:
+  
+    # Give each object ACL of public-read
+    s3.put_object_acl(Bucket='gid-staging', 
+                      Key=obj['Key'], 
+                      ACL='public-read')
+    
+    # Print the Public Object URL for each object
+    print("https://{}.s3.amazonaws.com/{}".format('gid-staging', obj['Key']))
+    #########
